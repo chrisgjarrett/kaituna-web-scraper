@@ -1,5 +1,6 @@
 import requests
 import pandas as pd
+import pytz 
 
 def get_df_from_json_bop_rivers(data_url, record_path=['Data']):
     content = requests.get(data_url).json()
@@ -67,6 +68,9 @@ def collate_kaituna_data(start_date, end_date):
     # Set index
     df_combined['TimeStamp'] = pd.to_datetime(df_combined['TimeStamp'])
     
+    # Put correct timezone info - what we get is UTC, but the actual time is local to NZ
+    df_combined["TimeStamp"] = df_combined['TimeStamp'].apply(lambda x: x.replace(tzinfo=pytz.timezone('Pacific/Auckland')))
+
     # Remove rows for which we don't have rainfall data
     df_river_data = df_combined.dropna()
 
